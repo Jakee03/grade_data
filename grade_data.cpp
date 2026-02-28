@@ -79,7 +79,7 @@ int main() {
     std::vector<double> marks;
     std::vector<std::string> unit_codes;
     std::vector<std::string> unit_names;
-    std::vector<bool> mask(marks.size(), true); //Make mask all true by default
+    std::vector<bool> mask; //Make mask vector to store which entries are included in the statistics calculations
 
     std::ifstream input_file("course_marks.dat");
 
@@ -106,6 +106,8 @@ int main() {
     }
 
     input_file.close();
+
+    mask.assign(marks.size(), true); // Initially, all entries are included in the statistics calculations
 
     // Verification output
     std::cout << "Successfully loaded " << marks.size() << " entries." << std::endl;
