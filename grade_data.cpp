@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <numeric>
 #include <cmath>
+#include <algorithm>
 
 int check() {
     std::ifstream input_file("course_marks.dat");
@@ -28,25 +29,31 @@ int check() {
 }
 
 // Function to calculate Mean (mu)
-double calculateMean(const std::vector<double>& data) {
-    if (data.empty()) return 0.0;
-    
-    //sums up the vector from start to end
-    double sum = std::accumulate(data.begin(), data.end(), 0.0);
-    return sum / data.size();
+double calculateMean(const std::vector<double>& data, const std::vector<bool>& mask) {
+    double sum = 0;
+    int count = 0;
+    for (size_t i = 0; i < data.size(); ++i) {
+        if (mask[i]) { // If mask[i] is true, it's included
+            sum += data[i];
+            count++;
+        }
+    }
+    if (count == 0) return 0.0;
+    return sum / count;
 }
 
 // Function to calculate Sample Standard Deviation (sigma)
-double calculateStdDev(const std::vector<double>& data, double mu) {
-    if (data.size() <= 1) return 0.0; // Avoid division by zero
-
-    double sum_sq_diff = 0.0;
-    for (double x : data) {
-        sum_sq_diff += std::pow(x - mu, 2);
+double calculateStdDev(const std::vector<double>& data, const std::vector<bool>& mask, double mu) {
+    double sum_sq_diff = 0;
+    int count = 0;
+    for (size_t i = 0; i < data.size(); ++i) {
+        if (mask[i]) {
+            sum_sq_diff += std::pow(data[i] - mu, 2);
+            count++;
+        }
     }
-
-    // Formula from slide
-    return std::sqrt(sum_sq_diff / (data.size() - 1));
+    if (count <= 1) return 0.0; //needs N-1 > 0
+    return std::sqrt(sum_sq_diff / (count - 1));
 }
 
 double calculateStdError(double sigma, size_t N) {
@@ -54,11 +61,25 @@ double calculateStdError(double sigma, size_t N) {
     return sigma / std::sqrt(N);
 }
 
+std::vector<bool> yearMask(const std::vector<std::string>& codes, int targetYear) {
+    std::vector<bool> mask(codes.size(), false);
+    char targetChar = targetYear + '0'; // Convert year to corresponding character
+
+    for (size_t i = 0; i < codes.size(); ++i) {
+        // Check if the code is not empty and if the first character matches the target year
+        if (!codes[i].empty() && codes[i][0] == targetChar) {
+            mask[i] = true;
+        }
+    }
+    return mask;
+}
+
 int main() {
     // Vectors to store the columns
     std::vector<double> marks;
     std::vector<std::string> unit_codes;
     std::vector<std::string> unit_names;
+    std::vector<bool> mask(marks.size(), true); //Make mask all true by default
 
     std::ifstream input_file("course_marks.dat");
 
@@ -91,14 +112,31 @@ int main() {
 
     //check();
 
-    if (!marks.empty()) {
-        double mu = calculateMean(marks);
-        double sigma = calculateStdDev(marks, mu);
-        double sigma_mu = calculateStdError(sigma, marks.size());
+    std::cout << "Do you want to calculate statistics for a specific year? (y/n): " <<std::endl;
+    char choice;
+    std::cin >> choice;
+    if (choice == 'y' || choice == 'Y') {
+        std::cout << "Enter the year (1, 2, 3 or 4): " << std::endl;
+        int year;
+        std::cin >> year;
 
-        std::cout << "Mean (mu): " << std::fixed << std::setprecision(2) << mu << std::endl;
-        std::cout << "Std Deviation (sigma): " << sigma << std::endl;
-        std::cout << "Standard Error (sigma_mu): " << sigma_mu << std::endl;
+        mask = yearMask(unit_codes, year); // Update the mask based on the selected year
+
+        std::vector<double> yearMarks;
+    }
+
+    int N = std::count(mask.begin(), mask.end(), true); // Count how many entries are true in the mask
+
+    if (N > 0) {
+        //pass same mask to every function
+        double mu = calculateMean(marks, mask);
+        double sigma = calculateStdDev(marks, mask, mu);
+        double sigma_mu = calculateStdError(sigma, N);
+
+        std::cout << "\nEntries:    " << N << std::endl;
+        std::cout << "Mean:       " << std::fixed << std::setprecision(2) << mu << std::endl;
+        std::cout << "Std Dev:    " << sigma << std::endl;
+        std::cout << "Std Error:  " << sigma_mu << std::endl;
     }
 
     return 0;
