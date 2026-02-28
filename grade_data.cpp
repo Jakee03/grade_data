@@ -124,11 +124,28 @@ int main() {
 
         mask = yearMask(unit_codes, year); // Update the mask based on the selected year
     }
+
+    // Ask for sorting preference
+    std::cout << "Do you want to order the displayed data by course name? (y/n): ";
+    char sortChoice;
+    std::cin >> sortChoice;
+
+    // Create a vector of indices
+    std::vector<int> indices(marks.size());
+    std::iota(indices.begin(), indices.end(), 0); // Fills with 0, 1, 2...
+
+    // Sort the indices based on the alphabetical order of unit_names
+    if (sortChoice == 'y' || sortChoice == 'Y') {
+        std::sort(indices.begin(), indices.end(), [&](int a, int b) {
+            return unit_names[a] < unit_names[b];
+        });
+    }
+
     // Print the list of marks, codes, and names
     std::cout << "\n" << std::left << std::setw(8) << "Mark" << std::setw(12) << "Code" << "Name" << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
     
-    for (size_t i = 0; i < marks.size(); ++i) {
+    for (int i : indices) {
         if (mask[i]) { 
             std::cout << std::setw(8) << marks[i] 
                       << std::setw(12) << unit_codes[i] 
