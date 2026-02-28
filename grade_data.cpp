@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <numeric>
+#include <cmath>
 
 int check() {
     std::ifstream input_file("course_marks.dat");
@@ -23,6 +25,33 @@ int check() {
 
     input_file.close();
     return 0;
+}
+
+// Function to calculate Mean (mu)
+double calculateMean(const std::vector<double>& data) {
+    if (data.empty()) return 0.0;
+    
+    //sums up the vector from start to end
+    double sum = std::accumulate(data.begin(), data.end(), 0.0);
+    return sum / data.size();
+}
+
+// Function to calculate Sample Standard Deviation (sigma)
+double calculateStdDev(const std::vector<double>& data, double mu) {
+    if (data.size() <= 1) return 0.0; // Avoid division by zero
+
+    double sum_sq_diff = 0.0;
+    for (double x : data) {
+        sum_sq_diff += std::pow(x - mu, 2);
+    }
+
+    // Formula from slide
+    return std::sqrt(sum_sq_diff / (data.size() - 1));
+}
+
+double calculateStdError(double sigma, size_t N) {
+    if (N == 0) return 0.0; // Avoid division by zero
+    return sigma / std::sqrt(N);
 }
 
 int main() {
@@ -60,7 +89,17 @@ int main() {
     // Verification output
     std::cout << "Successfully loaded " << marks.size() << " entries." << std::endl;
 
-    check();
+    //check();
+
+    if (!marks.empty()) {
+        double mu = calculateMean(marks);
+        double sigma = calculateStdDev(marks, mu);
+        double sigma_mu = calculateStdError(sigma, marks.size());
+
+        std::cout << "Mean (mu): " << std::fixed << std::setprecision(2) << mu << std::endl;
+        std::cout << "Std Deviation (sigma): " << sigma << std::endl;
+        std::cout << "Standard Error (sigma_mu): " << sigma_mu << std::endl;
+    }
 
     return 0;
 }
