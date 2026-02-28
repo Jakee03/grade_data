@@ -123,18 +123,17 @@ int main() {
         std::cin >> year;
 
         mask = yearMask(unit_codes, year); // Update the mask based on the selected year
-
-    // Print the full list of marks, codes, and names
+    }
+    // Print the list of marks, codes, and names
     std::cout << "\n" << std::left << std::setw(8) << "Mark" << std::setw(12) << "Code" << "Name" << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
     
     for (size_t i = 0; i < marks.size(); ++i) {
-        if (mask[i]) { // This is the "Gatekeeper"
+        if (mask[i]) { 
             std::cout << std::setw(8) << marks[i] 
                       << std::setw(12) << unit_codes[i] 
                       << unit_names[i] << std::endl;
         }
-    }
     }
 
     int N = std::count(mask.begin(), mask.end(), true); // Count how many entries are true in the mask
