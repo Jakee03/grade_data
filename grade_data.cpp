@@ -78,13 +78,14 @@ std::vector<bool> yearMask(const std::vector<std::string>& codes, int targetYear
 char verifyChar() {
     char input;
     while (true) {
-        if (std::cin >> input) {
+        if (std::cin >> input && std::cin.peek() == '\n') {
             input = std::tolower(input);
             if (input == 'y' || input == 'n') {
+                std::cin.ignore(1000, '\n');
                 return input;
             }
         }
-        std::cout << "Invalid input. Please enter 'y' or 'n': ";
+        std::cout << "Invalid input. Please enter only 'y' or 'n': ";
         std::cin.clear();
         std::cin.ignore(1000, '\n');
     }
@@ -94,10 +95,11 @@ char verifyChar() {
 int verifyInt() {
     int input;
     while (true) {
-        if (std::cin >> input && input >= 1 && input <= 4) {
+        if (std::cin >> input && input >= 1 && input <= 4 && std::cin.peek() == '\n') {
+            std::cin.ignore(1000, '\n');
             return input;
         }
-        std::cout << "Invalid input. Please enter a number between 1 and 4: ";
+        std::cout << "Invalid input. Please enter a single digit between 1 and 4: ";
         std::cin.clear();
         std::cin.ignore(1000, '\n');
     }
