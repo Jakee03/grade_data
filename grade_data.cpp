@@ -74,6 +74,36 @@ std::vector<bool> yearMask(const std::vector<std::string>& codes, int targetYear
     return mask;
 }
 
+//func to verify char input for yes/no questions
+char verifyChar() {
+    char input;
+    while (true) {
+        if (std::cin >> input) {
+            input = std::tolower(input);
+            if (input == 'y' || input == 'n') {
+                return input;
+            }
+        }
+        std::cout << "Invalid input. Please enter 'y' or 'n': ";
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
+    }
+}
+
+//func to verify int input for year selection
+int verifyInt() {
+    int input;
+    while (true) {
+        if (std::cin >> input && input >= 1 && input <= 4) {
+            return input;
+        }
+        std::cout << "Invalid input. Please enter a number between 1 and 4: ";
+        std::cin.clear();
+        std::cin.ignore(1000, '\n');
+    }
+}
+
+
 int main() {
     // Vectors to store the columns
     std::vector<double> marks;
@@ -115,20 +145,18 @@ int main() {
     //check();
 
     std::cout << "Do you want to calculate statistics for a specific year? (y/n): " <<std::endl;
-    char choice;
-    std::cin >> choice;
-    if (choice == 'y' || choice == 'Y') {
+    char choice = verifyChar(); // Use the verification function
+    
+    if (choice == 'y') {
         std::cout << "Enter the year (1, 2, 3 or 4): " << std::endl;
-        int year;
-        std::cin >> year;
+        int year = verifyInt(); // Use the verification function
 
         mask = yearMask(unit_codes, year); // Update the mask based on the selected year
     }
 
     // Ask for sorting preference
     std::cout << "Do you want to order the displayed data by course name? (y/n): ";
-    char sortChoice;
-    std::cin >> sortChoice;
+    char sortChoice = verifyChar(); // Use the verification function
 
     // Create a vector of indices
     std::vector<int> indices(marks.size());
